@@ -10,6 +10,8 @@ export function useLive(onChange: () => void, enabled = true) {
     }
 
     const browser = getSupabaseBrowser();
+    const interval = window.setInterval(onChange, 5000);
+
     if (browser) {
       const channel = browser
         .channel(`sprintly-${crypto.randomUUID()}`)
@@ -18,11 +20,11 @@ export function useLive(onChange: () => void, enabled = true) {
         .subscribe();
 
       return () => {
+        window.clearInterval(interval);
         void browser.removeChannel(channel);
       };
     }
 
-    const interval = window.setInterval(onChange, 5000);
     return () => window.clearInterval(interval);
   }, [enabled, onChange]);
 }

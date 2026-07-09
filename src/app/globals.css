@@ -1,26 +1,199 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
+/* ─── Colour tokens ──────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f0f2f5;
+  --bg-card: #ffffff;
+  --bg-column: rgba(255,255,255,0.55);
+  --fg: #0f172a;
+  --fg-muted: #64748b;
+  --border: #e2e8f0;
+  --border-focus: #6366f1;
+  --accent: #6366f1;           /* indigo-500 */
+  --accent-light: #818cf8;     /* indigo-400 */
+  --accent-glow: rgba(99,102,241,0.25);
+  --success: #10b981;
+  --success-glow: rgba(16,185,129,0.2);
+  --danger: #ef4444;
+  --danger-glow: rgba(239,68,68,0.2);
+  --warning: #f59e0b;
+  --overlay: rgba(15,23,42,0.55);
+
+  /* column accents */
+  --col-backlog: #94a3b8;
+  --col-progress: #3b82f6;
+  --col-review: #f59e0b;
+  --col-done: #10b981;
+
+  /* priority */
+  --pri-high: #ef4444;
+  --pri-med: #f59e0b;
+  --pri-low: #10b981;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base ─────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Keyframe library ─────────────────────────────────────── */
+
+/* Toast / notification slide-in from right */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
 }
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(100%); }
+}
+
+/* Fade-in generic */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Scale + fade for modals / overlays */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Shake for blocked drops / errors */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-6px); }
+  40%     { transform: translateX(6px); }
+  60%     { transform: translateX(-4px); }
+  80%     { transform: translateX(4px); }
+}
+
+/* Drag overlay pickup */
+@keyframes cardPickup {
+  0%   { transform: scale(1) rotate(0); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  100% { transform: scale(1.04) rotate(-1.5deg); box-shadow: 0 20px 50px rgba(0,0,0,0.18); }
+}
+
+/* Drop bounce into place */
+@keyframes dropBounce {
+  0%   { transform: scale(1.04); opacity: 0.9; }
+  50%  { transform: scale(0.98); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Pulsing placeholder */
+@keyframes placeholderPulse {
+  0%,100% { opacity: 0.45; border-color: var(--accent-light); }
+  50%     { opacity: 0.75; border-color: var(--accent); }
+}
+
+/* Column glow when drop target */
+@keyframes columnGlow {
+  0%,100% { box-shadow: 0 0 0 2px var(--accent-glow), inset 0 0 30px rgba(99,102,241,0.03); }
+  50%     { box-shadow: 0 0 0 3px var(--accent-glow), inset 0 0 40px rgba(99,102,241,0.06); }
+}
+@keyframes columnGlowDanger {
+  0%,100% { box-shadow: 0 0 0 2px var(--danger-glow), inset 0 0 30px rgba(239,68,68,0.03); }
+  50%     { box-shadow: 0 0 0 3px var(--danger-glow), inset 0 0 40px rgba(239,68,68,0.06); }
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* Notification bell ring */
+@keyframes bellRing {
+  0%   { transform: rotate(0); }
+  15%  { transform: rotate(14deg); }
+  30%  { transform: rotate(-12deg); }
+  45%  { transform: rotate(8deg); }
+  60%  { transform: rotate(-6deg); }
+  75%  { transform: rotate(3deg); }
+  100% { transform: rotate(0); }
+}
+
+/* Toast progress bar */
+@keyframes progressShrink {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+/* Subtle float for empty state */
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-4px); }
+}
+
+/* ─── Utility classes ──────────────────────────────────────── */
+
+.glass {
+  background: var(--bg-column);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.drag-overlay-card {
+  animation: cardPickup 200ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  border: 2px solid var(--accent-light);
+  border-radius: 14px;
+  background: var(--bg-card);
+  cursor: grabbing;
+}
+
+.drop-placeholder {
+  border: 2px dashed var(--accent-light);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.04), rgba(129,140,248,0.06));
+  animation: placeholderPulse 1.6s ease-in-out infinite;
+}
+
+.column-drop-active {
+  animation: columnGlow 1.4s ease-in-out infinite;
+}
+.column-drop-blocked {
+  animation: columnGlowDanger 1s ease-in-out infinite;
+}
+
+.card-dropped {
+  animation: dropBounce 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.shake {
+  animation: shake 400ms ease-in-out;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.bell-ring {
+  animation: bellRing 600ms ease-in-out;
+}
+
+/* ─── Scrollbar styling ────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
